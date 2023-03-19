@@ -42,9 +42,8 @@ var makeCmd = &cobra.Command{
 	},
 }
 
-func makeAction(out io.Writer, appName, modName, dir string) error {
-	fmt.Printf("Creating new skeleton server named %s in %s\n", appName, dir)
-	// Check given directory
+// Checks to see if the given directory exists
+func checkDirectory(dir string) error {
 	fmt.Printf("Checking if %s is a valid directory...\n", dir)
 	_, err := os.Stat(dir)
 	if err != nil {
@@ -53,79 +52,95 @@ func makeAction(out io.Writer, appName, modName, dir string) error {
 	} else {
 		fmt.Printf("--> Successfully confirmed %s exists, continuing.\n", dir)
 	}
-	// Check and create target directory
-	target := filepath.Join(dir, appName)
+	return nil
+}
+
+// Creates target directory
+func createTargetDirectory(target string) error {
 	fmt.Printf("Creating application subdirectory %s...\n", target)
-	err = os.Mkdir(target, 0755)
+	err := os.Mkdir(target, 0755)
 	if err != nil {
 		fmt.Printf("--> Couldn't create directory %s, aborting.\n", target)
 		return err
 	} else {
 		fmt.Printf("--> Successfully created directory %s, continuing\n", target)
 	}
-	// Create go mod
+	return nil
+}
+
+// Initializes go module
+func initializeGoMod(modName, target string) error {
 	fmt.Printf("Creating go module named %s in %s...\n", modName, target)
 	cmd := exec.Command("go", "mod", "init", modName)
 	cmd.Dir = target
-	_, err = cmd.Output()
+	_, err := cmd.Output()
 	if err != nil {
 		fmt.Printf("--> Couldn't create go module %s, aborting.\n", modName)
 		return err
 	} else {
 		fmt.Printf("--> Successfully created go module %s, continuing\n", modName)
 	}
-	// Create base files
-	fmt.Println("Creating README.md")
-	readme, err := os.Create(filepath.Join(target, "README.md"))
+	return nil
+}
+
+// Creates an empty file in a specified path
+// Returns the file for future use if needed
+func createFile(name, path string) (*os.File, error) {
+	fp := filepath.Join(path, name)
+	fmt.Printf("Creating file: %s...\n", fp)
+	f, err := os.Create(fp)
 	if err != nil {
-		fmt.Println("--> Couldn't create README.md, aborting.")
-		return err
+		fmt.Printf("--> Couldn't create %s, aborting.", fp)
+		return nil, err
 	} else {
-		fmt.Println("--> Successfully created README.md, continuing")
+		fmt.Printf("--> Successfully created %s, continuing", fp)
 	}
-	defer readme.Close()
-	_, err = readme.Write([]byte(fmt.Sprintf("# %s\n\n", appName)))
-	if err != nil {
+	return f, nil
+}
+
+// Writes a string to a given file
+func writeFile(file *os.File, content string) error {
+	_, err := file.Write([]byte(content))
+	return err
+}
+
+// Scaffolds the project file structure and templates README documentation
+func ScaffoldProject(target string, folders [][]string, readme *os.File) error {
+	if err := writeFile(readme, "## File Structure\n\n"); err != nil {
 		return err
 	}
-	targets := [][]string{
-		{"bin", "Contains compiled application binaries ready for production deployment"},
-		{"cmd", ""},
-		{"cmd/api", "Contains application specific code to run server"},
-		{"internal", "Contains various ancillary packages used by API"},
-		{"migrations", "Contains SQL migration files for database"},
-		{"remote", "Contains configuration files and setup scripts for remote deployment"},
-	}
-	_, err = readme.Write([]byte("## File Structure\n\n"))
-	if err != nil {
-		return err
-	}
-	for _, t := range targets {
-		targ := filepath.Join(target, t[0])
-		fmt.Printf("Creating subdirectory %s...\n", targ)
-		err = os.Mkdir(targ, 0755)
-		if err != nil {
-			fmt.Printf("--> Couldn't create directory %s, aborting.\n", targ)
+
+	for _, f := range folders {
+		t := filepath.Join(target, f[0])
+		fmt.Printf("Creating subdirectory %s...\n", t)
+		if err := os.Mkdir(t, 0755); err != nil {
+			fmt.Printf("--> Couldn't create directory %s, aborting.\n", t)
 			return err
 		} else {
-			fmt.Printf("--> Successfully created directory %s, continuing\n", targ)
+			fmt.Printf("--> Successfully created directory %s, continuing\n", t)
 		}
-		if t[1] != "" {
-			_, err = readme.Write([]byte(fmt.Sprintf("- `%s`: %s\n", t[0], t[1])))
-			if err != nil {
+		if f[1] != "" {
+			if err := writeFile(readme, fmt.Sprintf("- `%s`: %s\n", f[0], f[1])); err != nil {
 				return err
 			}
 		}
 	}
-	fmt.Printf("Creating %s/cmd/api/main.go...\n", target)
-	main_dest, err := os.Create(filepath.Join(target, "cmd/api/main.go"))
+
+	return nil
+}
+
+// Templates a new file from an existing one
+func TemplateFile(target string, newFile string, templateFile string) error {
+	newTarget := filepath.Join(target, newFile)
+	fmt.Printf("Creating %s\n", newTarget)
+	main_dest, err := os.Create(newTarget)
 	if err != nil {
-		fmt.Println("--> Couldn't create cmd/api/main.go, aborting.")
+		fmt.Printf("--> Couldn't create %s, aborting.\n", newTarget)
 		return err
 	} else {
-		fmt.Println("--> Successfully created cmd/api/main.go continuing")
+		fmt.Printf("--> Successfully created %s continuing\n", newTarget)
 	}
-	main_source, err := os.Open("./skeleton-files/main.go")
+	main_source, err := os.Open(templateFile)
 	if err != nil {
 		return err
 	}
@@ -135,44 +150,57 @@ func makeAction(out io.Writer, appName, modName, dir string) error {
 	}
 	defer main_source.Close()
 	defer main_dest.Close()
+	return nil
+}
 
-	fmt.Printf("Creating %s/cmd/api/healthcheck.go...\n", target)
-	hc_dest, err := os.Create(filepath.Join(target, "/cmd/api/healthcheck.go"))
-	if err != nil {
-		fmt.Println("--> Couldn't create /cmd/api/healthcheck.go, aborting.")
-		return err
-	} else {
-		fmt.Println("--> Successfully created /cmd/api/healthcheck.go continuing")
-	}
-	hc_source, err := os.Open("./skeleton-files/healthcheck.go")
-	if err != nil {
+func makeAction(out io.Writer, appName, modName, dir string) error {
+	fmt.Printf("Creating new skeleton server named %s in %s\n", appName, dir)
+	// Check given directory
+	if err := checkDirectory(dir); err != nil {
 		return err
 	}
-	_, err = io.Copy(hc_dest, hc_source)
+	// Check and create target directory
+	target := filepath.Join(dir, appName)
+	if err := createTargetDirectory(target); err != nil {
+		return err
+	}
+	// Create go mod
+	if err := initializeGoMod(modName, target); err != nil {
+		return err
+	}
+	// Create README
+	readme, err := createFile("README.md", target)
 	if err != nil {
 		return err
 	}
-	defer hc_source.Close()
-	defer hc_dest.Close()
+	if err := writeFile(readme, fmt.Sprintf("# %s\n\n", appName)); err != nil {
+		return err
+	}
 
-	fmt.Printf("Creating %s/Makefile...\n", target)
-	m_dest, err := os.Create(filepath.Join(target, "Makefile"))
-	if err != nil {
-		fmt.Println("--> Couldn't create Makefile, aborting.")
-		return err
-	} else {
-		fmt.Println("--> Successfully created Makefile continuing")
+	targets := [][]string{
+		{"bin", "Contains compiled application binaries ready for production deployment"},
+		{"cmd", ""},
+		{"cmd/api", "Contains application specific code to run server"},
+		{"internal", "Contains various ancillary packages used by API"},
+		{"migrations", "Contains SQL migration files for database"},
+		{"remote", "Contains configuration files and setup scripts for remote deployment"},
 	}
-	m_source, err := os.Open("./skeleton-files/Makefile")
-	if err != nil {
-		return err
-	}
-	_, err = io.Copy(m_dest, m_source)
-	if err != nil {
+
+	if err := ScaffoldProject(target, targets, readme); err != nil {
 		return err
 	}
-	defer main_source.Close()
-	defer main_dest.Close()
+
+	if err := TemplateFile(target, "cmd/api/main.go", "./skeleton-files/main.go"); err != nil {
+		return err
+	}
+
+	if err := TemplateFile(target, "cmd/api/healthcheck.go", "./skeleton-files/healthcheck.go"); err != nil {
+		return err
+	}
+
+	if err := TemplateFile(target, "Makefile", "./skeleton-files/Makefile"); err != nil {
+		return err
+	}
 
 	return nil
 }
