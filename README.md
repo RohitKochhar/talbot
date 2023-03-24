@@ -2,6 +2,19 @@
 
 Quick and easy scaffolding for go servers and microservices
 
+## Installation
+
+### Building from source
+
+To build `talbot` from source, select the proper `GOOS` and `GOARCH` for your platform and use the following instructions:
+ 
+```bash
+$ git clone git@github.com:RohitKochhar/talbot.git
+$ cd talbot
+$ GOOS={darwin,linux,windows} GOARCH={amd64,arm64} go build
+$ mv talbot /usr/local/bin
+```
+
 ## Usage
 
 ```bash
