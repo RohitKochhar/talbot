@@ -8,7 +8,7 @@ set -e
 
 # Remove artifacts of previous builds
 rm -rf testing-output
-rm ./talbot
+# rm ./talbot
 
 # Rebuild binary
 go build
