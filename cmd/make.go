@@ -153,6 +153,21 @@ func TemplateFile(target string, newFile string, templateFile string) error {
 	return nil
 }
 
+// Executes `go mod download`
+func GetGolangPackage(target string, packageName string) error {
+	fmt.Printf("Collecting go package %s in %s...\n", packageName, target)
+	cmd := exec.Command("go", "get", packageName)
+	cmd.Dir = target
+	_, err := cmd.Output()
+	if err != nil {
+		fmt.Printf("--> Couldn't collect go package %s, aborting.\n", packageName)
+		return err
+	} else {
+		fmt.Printf("--> Successfully collected go package %s, continuing.\n", packageName)
+	}
+	return nil
+}
+
 func makeAction(out io.Writer, appName, modName, dir string) error {
 	fmt.Printf("Creating new skeleton server named %s in %s\n", appName, dir)
 	// Check given directory
@@ -194,7 +209,27 @@ func makeAction(out io.Writer, appName, modName, dir string) error {
 		return err
 	}
 
-	if err := TemplateFile(target, "cmd/api/healthcheck.go", "./skeleton-files/healthcheck.go"); err != nil {
+	if err := TemplateFile(target, "cmd/api/handlers.go", "./skeleton-files/handlers.go"); err != nil {
+		return err
+	}
+
+	if err := TemplateFile(target, "cmd/api/handlers_test.go", "./skeleton-files/handlers_test.go"); err != nil {
+		return err
+	}
+
+	if err := TemplateFile(target, "Dockerfile", "./skeleton-files/Dockerfile"); err != nil {
+		return err
+	}
+
+	if err := TemplateFile(target, "docker-compose.yaml", "./skeleton-files/docker-compose.yaml"); err != nil {
+		return err
+	}
+
+	if err := TemplateFile(filepath.Join(target, "/cmd/api"), "docker-compose.yaml", "./skeleton-files/docker-compose.yaml"); err != nil {
+		return err
+	}
+
+	if err := GetGolangPackage(target, "github.com/julienschmidt/httprouter"); err != nil {
 		return err
 	}
 
