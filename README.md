@@ -1,6 +1,6 @@
 # talbot
 
-Quick and easy scaffolding for go servers
+Quick and easy scaffolding for go servers and microservices
 
 ## Usage
 

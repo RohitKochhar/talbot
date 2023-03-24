@@ -8,9 +8,13 @@ set -e
 
 # Remove artifacts of previous builds
 rm -rf testing-output
+rm ./talbot
+
+# Rebuild binary
+go build
 
 # Scaffold a new microservice
-go run main.go make -n testing-output -d . -m github.com/rohitkochhar/talbot-output
+./talbot make -n testing-output -d . -m github.com/rohitkochhar/talbot-output
 
 cd ./testing-output
 
