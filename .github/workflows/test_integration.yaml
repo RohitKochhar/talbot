@@ -13,6 +13,7 @@ jobs:
     - uses: actions/checkout@v2
     - name: Run test_talbot.sh file
       run: |
-         chmod +x ./talbot/test_talbot.sh
-         ./talbot/test_talbot.sh
+          pwd
+          chmod +x ./talbot/test_talbot.sh
+          ./talbot/test_talbot.sh
       shell: bash
