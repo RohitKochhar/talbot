@@ -1,19 +1,18 @@
-name: test_integration
+name: Run Integration Test
 
 on:
   push:
-    branches: [ "master" ]
+    branches: [ main ]
   pull_request:
-    branches: [ "master" ]
+    branches: [ main ]
 
 jobs:
-  run_tests:
-    runs-on: ubuntu-20.04
+  build:
+    runs-on: ubuntu-latest
+
     steps:
-    - uses: actions/checkout@v2
-    - name: Run test_talbot.sh file
-      run: |
-          pwd
-          chmod +x ./talbot/test_talbot.sh
-          ./talbot/test_talbot.sh
-      shell: bash
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Run test_talbot.sh
+      run: bash test_talbot.sh
