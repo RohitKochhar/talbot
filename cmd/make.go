@@ -78,27 +78,11 @@ func makeAction(out io.Writer, appName, modName, dir string) error {
 		return err
 	}
 
-	if err := TemplateFile(target, "cmd/api/main.go", "./skeleton-files/main.go"); err != nil {
+	if err := GenerateGoSourceFiles(target); err != nil {
 		return err
 	}
 
-	if err := TemplateFile(target, "cmd/api/handlers.go", "./skeleton-files/handlers.go"); err != nil {
-		return err
-	}
-
-	if err := TemplateFile(target, "cmd/api/handlers_test.go", "./skeleton-files/handlers_test.go"); err != nil {
-		return err
-	}
-
-	if err := TemplateFile(target, "Dockerfile", "./skeleton-files/Dockerfile"); err != nil {
-		return err
-	}
-
-	if err := TemplateFile(target, "docker-compose.yaml", "./skeleton-files/docker-compose.yaml"); err != nil {
-		return err
-	}
-
-	if err := TemplateFile(filepath.Join(target, "/cmd/api"), "docker-compose.yaml", "./skeleton-files/docker-compose.yaml"); err != nil {
+	if err := GenerateContainerizationFiles(target); err != nil {
 		return err
 	}
 
@@ -111,10 +95,6 @@ func makeAction(out io.Writer, appName, modName, dir string) error {
 		return err
 	}
 	if err := writeFile(readme, "| HTTP Endpoint | Method | Info |\n|-----|------|------|\n|`/v1/healthcheck`| GET | Displays server status\n"); err != nil {
-		return err
-	}
-
-	if err := TemplateFile(target, "Makefile", "./skeleton-files/Makefile"); err != nil {
 		return err
 	}
 
