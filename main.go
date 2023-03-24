@@ -3,7 +3,7 @@ Copyright © 2023 Rohit Singh rkochhar@uwaterloo.ca
 */
 package main
 
-import "github.com/rohitkochhar/skele-server/cmd"
+import "github.com/rohitkochhar/talbot/cmd"
 
 func main() {
 	cmd.Execute()

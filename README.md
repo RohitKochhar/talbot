@@ -1,4 +1,4 @@
-# skele-server
+# talbot
 
 Quick and easy scaffolding for go servers
 
@@ -6,7 +6,7 @@ Quick and easy scaffolding for go servers
 
 ```bash
 Usage:
-  skele-server make [flags]
+  talbot make [flags]
 
 Aliases:
   make, m
@@ -23,7 +23,7 @@ Flags:
 Running:
 
 ```bash
-$ skele-server make -n example-output -d . -m github.com/rohitkochhar/skele-server-output
+$ talbot make -n example-output -d . -m github.com/rohitkochhar/talbot-output
 ```
 
 Generates the application seen in this repository's `./example-output` directory.

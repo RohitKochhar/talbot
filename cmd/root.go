@@ -11,7 +11,7 @@ import (
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
-	Use:     "skele-server",
+	Use:     "talbot",
 	Short:   "Automated Go skeleton server templating",
 	Long:    `Automated Go skeleton server templating`,
 	Version: "0.1",

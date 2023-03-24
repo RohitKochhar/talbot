@@ -1,4 +1,4 @@
-module github.com/rohitkochhar/skele-server
+module github.com/rohitkochhar/talbot
 
 go 1.19
 

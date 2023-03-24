@@ -1,4 +1,4 @@
-module github.com/rohitkochhar/skele-server-output
+module github.com/rohitkochhar/talbot-output
 
 go 1.19
 
