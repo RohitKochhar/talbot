@@ -2,10 +2,9 @@ name: "Run Integration Test"
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, master ]
   pull_request:
-    branches: [ main ]
-  workflow_dispatch:
+    branches: [ main, master ]
 
 jobs:
   build:
