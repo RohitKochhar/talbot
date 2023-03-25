@@ -29,3 +29,7 @@ In the code and documentation, prefer non-offensive terminology, for example:
 - `allowlist`/`denylist` (instead of `whitelist`/`blacklist`)
 - `primary`/`replica` (instead of `master`/`slave`)
 - `openbox`/`closedbox` (instead of `whitebox`/`blackbox`)
+
+## Commit Naming
+
+Commits must follow the guidelines specified by the [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/)
