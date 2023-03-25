@@ -2,6 +2,8 @@
 
 # ----------------------------------------------------------------------------
 # Integration test
+# flag_test.sh
+# - Creates a talbot scaffold from command line flags
 # ----------------------------------------------------------------------------
 # Fail on errors
 set -e

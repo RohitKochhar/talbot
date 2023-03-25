@@ -2,8 +2,11 @@ package cmd
 
 import (
 	"fmt"
+	"os"
+	"path/filepath"
 
 	"github.com/spf13/cobra"
+	"k8s.io/apimachinery/pkg/util/yaml"
 )
 
 // Config interface must contain app information
@@ -17,47 +20,47 @@ type Config interface {
 // FlagConfig contains app information collected
 // from command line flags
 type FlagConfig struct {
-	appName   string
-	directory string
-	modName   string
+	AppName   string
+	Directory string
+	ModName   string
 }
 
 // Returns name of application
 func (c FlagConfig) getAppName() string {
-	return c.appName
+	return c.AppName
 }
 
 // Returns target directory
 func (c FlagConfig) getDirectory() string {
-	return c.directory
+	return c.Directory
 }
 
 // Returns name of go module
 func (c FlagConfig) getModName() string {
-	return c.modName
+	return c.ModName
 }
 
 // YamlConfig contains app information collected
 // from YAML configuration file
 type YamlConfig struct {
-	appName   string
-	directory string
-	modName   string
+	AppName   string `yaml:"appName"`
+	Directory string `yaml:"directory"`
+	ModName   string `yaml:"modName"`
 }
 
 // Returns name of application
 func (c YamlConfig) getAppName() string {
-	return c.appName
+	return c.AppName
 }
 
 // Returns target directory
 func (c YamlConfig) getDirectory() string {
-	return c.directory
+	return c.Directory
 }
 
 // Returns name of go module
 func (c YamlConfig) getModName() string {
-	return c.modName
+	return c.ModName
 }
 
 // Checks if the config should be loaded from a YAML
@@ -70,7 +73,11 @@ func setConfiguration(cmd *cobra.Command) (Config, error) {
 		return nil, err
 	}
 	if confFile != "" {
-		return loadYamlConfig(confFile)
+		wd, err := os.Getwd()
+		if err != nil {
+			return nil, err
+		}
+		return loadYamlConfig(filepath.Join(wd, confFile))
 	}
 	// Check if flags were provided
 	return loadFlagConfig(cmd)
@@ -80,8 +87,26 @@ func setConfiguration(cmd *cobra.Command) (Config, error) {
 // Reads configuration information from YAML file and returns
 // a YamlConfig object containing application information
 func loadYamlConfig(filename string) (*YamlConfig, error) {
-	// ToDo
-	return nil, nil
+	yamlFile, err := os.ReadFile(filename)
+	if err != nil {
+		return nil, err
+	}
+	yamlConf := &YamlConfig{}
+	err = yaml.Unmarshal(yamlFile, yamlConf)
+	if err != nil {
+		return nil, err
+	}
+	fmt.Printf("HERE: %+v", yamlConf)
+	if yamlConf.AppName == "" {
+		return nil, fmt.Errorf("no `appName` field set in YAML file")
+	}
+	if yamlConf.Directory == "" {
+		yamlConf.Directory = "./"
+	}
+	if yamlConf.ModName == "" {
+		yamlConf.ModName = yamlConf.AppName
+	}
+	return yamlConf, nil
 }
 
 // Reads configuration information from command line flags and
@@ -106,8 +131,8 @@ func loadFlagConfig(cmd *cobra.Command) (*FlagConfig, error) {
 		return nil, err
 	}
 	return &FlagConfig{
-		appName:   appName,
-		modName:   modName,
-		directory: dir,
+		AppName:   appName,
+		ModName:   modName,
+		Directory: dir,
 	}, nil
 }
