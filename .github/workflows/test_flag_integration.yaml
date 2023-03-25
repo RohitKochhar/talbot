@@ -1,0 +1,19 @@
+name: "Run Flag Configuration Test"
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Run Flag Config Integration Test
+      run: bash integration_tests/flag_test.sh
+

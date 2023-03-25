@@ -19,29 +19,20 @@ var makeCmd = &cobra.Command{
 	Short:   "Makes a new server with the given specifications",
 	Long:    "Makes a new server with the given specifications",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		appName, err := cmd.Flags().GetString("app-name")
+		conf, err := setConfiguration(cmd)
 		if err != nil {
 			return err
 		}
-		if appName == "" {
-			return fmt.Errorf("no app-name argument was provided")
-		}
-		modName, err := cmd.Flags().GetString("mod-name")
-		if err != nil {
-			return err
-		}
-		if modName == "" {
-			modName = appName
-		}
-		dir, err := cmd.Flags().GetString("dir")
-		if err != nil {
-			return err
-		}
-		return makeAction(os.Stdout, appName, modName, dir)
+		return makeAction(os.Stdout, conf)
 	},
 }
 
-func makeAction(out io.Writer, appName, modName, dir string) error {
+func makeAction(out io.Writer, conf Config) error {
+	// Load in the information from the given configuration
+	// regardless of whether it was configured through YAML or flags
+	appName := conf.getAppName()
+	dir := conf.getDirectory()
+	modName := conf.getModName()
 	fmt.Printf("Creating new skeleton server named %s in %s\n", appName, dir)
 	// Check given directory
 	if err := checkDirectory(dir); err != nil {
@@ -111,7 +102,8 @@ func makeAction(out io.Writer, appName, modName, dir string) error {
 
 func init() {
 	rootCmd.AddCommand(makeCmd)
-	makeCmd.Flags().StringP("app-name", "n", "", "Name of application (Required)")
+	makeCmd.Flags().StringP("config", "c", "", "Configuration YAML file")
+	makeCmd.Flags().StringP("app-name", "n", "", "Name of application")
 	makeCmd.Flags().StringP("mod-name", "m", "", "Name of top-level application go module (default $app-name)")
 	makeCmd.Flags().StringP("dir", "d", "./", "Path to target app directory")
 }
