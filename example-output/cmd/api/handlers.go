@@ -15,3 +15,4 @@ func replyTextContent(w http.ResponseWriter, r *http.Request, status int, conten
 	w.WriteHeader(status)
 	w.Write([]byte(content + "\n"))
 }
+

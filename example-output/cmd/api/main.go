@@ -60,3 +60,4 @@ func (a *application) routes() *httprouter.Router {
 	// Return the configured router
 	return router
 }
+

@@ -59,3 +59,4 @@ func TestIntegration(t *testing.T) {
 	// Check that the server is healthy
 	_ = getHelper(t, url+"/v1/healthcheck", "OK", http.StatusOK)
 }
+

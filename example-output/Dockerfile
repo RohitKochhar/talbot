@@ -10,7 +10,7 @@ RUN go mod download
 
 COPY ./cmd/api /src
 
-# Run unit tests before building to stop build if tests fail
+# Run unit tests before building to sto build if tests fail
 RUN go test -v
 
 RUN CGO_ENABLED=0 GOOS=linux go build -o entrypoint
@@ -31,3 +31,4 @@ COPY --from=builder /src/entrypoint /
 EXPOSE 4000
 
 ENTRYPOINT [ "./entrypoint" ]
+
