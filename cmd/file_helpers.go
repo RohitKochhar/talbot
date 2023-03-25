@@ -13,10 +13,10 @@ func createFile(name, path string) (*os.File, error) {
 	fmt.Printf("Creating file: %s...\n", fp)
 	f, err := os.Create(fp)
 	if err != nil {
-		fmt.Printf("--> Couldn't create %s, aborting.", fp)
+		fmt.Printf("--> Couldn't create %s, aborting.\n", fp)
 		return nil, err
 	} else {
-		fmt.Printf("--> Successfully created %s, continuing", fp)
+		fmt.Printf("--> Successfully created %s, continuing\n", fp)
 	}
 	return f, nil
 }
