@@ -40,3 +40,7 @@ $ talbot make -n example-output -d . -m github.com/rohitkochhar/talbot-output
 ```
 
 Generates the application seen in this repository's `./example-output` directory.
+
+## Contributing
+
+For information on contributing to this project, please see [CONTRIBUTING.md](./CONTRIBUTING.md)
