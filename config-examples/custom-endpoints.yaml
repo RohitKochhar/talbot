@@ -1,0 +1,12 @@
+appName: microservice-with-endpoints
+modName: rohsingh.dev/microservice-with-endpoints
+directory: ./config-examples/example-builds
+endpoints:
+  - path: /v1/healthcheck
+    method: GET
+    description: "Responds with microservice health status"
+  - path: /v1/readycheck
+    method: GET
+    description: "Responds with microservice active status"
+
+
